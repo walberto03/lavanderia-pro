@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lavandería PRO - Sistema de Gestión & Academia</title>
+    <!-- Tailwind CSS (Estilos) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome (Iconos) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; color: #334155; }
+        
+        /* Animaciones y Transiciones */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Estilos Tarjetas Educativas */
+        .concept-card { 
+            background: white; 
+            border-radius: 12px; 
+            border: 1px solid #e2e8f0; 
+            padding: 1.5rem; 
+            margin-bottom: 1.5rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+        .concept-card:hover { transform: translateY(-2px); }
+        
+        .concept-title { font-weight: 700; color: #1e3a8a; display: flex; align-items: center; margin-bottom: 1rem; font-size: 1.1rem; }
+        .concept-icon { width: 40px; height: 40px; background: #eff6ff; color: #2563eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 1.2rem; }
+        
+        /* Cajas de Alerta y Pasos */
+        .highlight-box { background-color: #f0f9ff; border-left: 5px solid #0ea5e9; padding: 1.2rem; margin: 1rem 0; font-size: 0.95rem; border-radius: 0 8px 8px 0; }
+        .danger-box { background-color: #fef2f2; border-left: 5px solid #ef4444; padding: 1.2rem; margin: 1rem 0; font-size: 0.95rem; color: #991b1b; border-radius: 0 8px 8px 0; }
+        .step-box { background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 1rem; margin-top: 0.8rem; border-radius: 8px; position: relative; padding-left: 3.5rem; }
+        .step-number { position: absolute; left: 1rem; top: 1rem; width: 2rem; height: 2rem; background: #22c55e; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* Tablas */
+        .tech-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; overflow: hidden; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .tech-table th { background: #1e293b; color: white; padding: 14px; text-align: left; }
+        .tech-table td { border-bottom: 1px solid #e2e8f0; padding: 12px; background: white; }
+        .tech-table tr:last-child td { border-bottom: none; }
+        .tech-table tr:nth-child(even) td { background: #f8fafc; }
+        
+        /* Escala pH */
+        .ph-gradient { height: 24px; width: 100%; border-radius: 12px; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #3b82f6 100%); margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Navegación Superior Fija -->
+    <nav class="bg-slate-900 text-white shadow-xl flex-none z-50">
+        <div class="max-w-7xl mx-auto px-4 w-full">
+            <div class="flex justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="bg-blue-600 p-2 rounded-lg mr-3 shadow-lg shadow-blue-500/30">
+                        <i class="fa-solid fa-shirt text-xl text-white"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-xl block leading-none tracking-tight">Lavandería PRO</span>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Gestión & Escuela</span>
+                    </div>
+                </div>
+                <!-- Botones Menú -->
+                <div class="flex space-x-2 items-center">
+                    <button onclick="switchTab('machine')" class="tab-btn px-4 py-2 hover:bg-slate-800 rounded-lg transition text-sm flex items-center font-medium bg-slate-800 text-blue-300 border border-slate-700 shadow-sm" id="btn-machine">
+                        <i class="fa-solid fa-calculator mr-2"></i>Herramientas
+                    </button>
+                    <button onclick="switchTab('learning')" class="tab-btn px-4 py-2 hover:bg-slate-800 rounded-lg transition text-sm flex items-center font-medium text-slate-300 border border-transparent" id="btn-learning">
+                        <i class="fa-solid fa-graduation-cap mr-2"></i>Academia
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Área de Contenido Principal -->
+    <div class="flex-grow overflow-y-auto bg-slate-100 p-4 scroll-smooth">
+        <div class="max-w-6xl mx-auto">
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 1: GESTOR (CALCULADORA) -->
+            <!-- ========================================== -->
+            <div id="machine" class="tab-content active fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Columna Izq: Configuración (4 columnas) -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <!-- Tarjeta Configuración -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center border-b pb-3">
+                                <i class="fa-solid fa-sliders mr-2 text-blue-600 bg-blue-50 p-2 rounded"></i> 
+                                Datos de la Máquina
+                            </h2>
+                            <div class="space-y-5">
+                                <div>
+                                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Capacidad Total (kg)</label>
+                                    <div class="relative mt-1">
+                                        <input type="number" id="machineCapacity" class="w-full pl-3 pr-10 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="20" value="20" oninput="updateAllCalculations()">
+                                        <span class="absolute right-3 top-2 text-slate-400 text-sm">kg</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wide">Factor de Carga</label>
+                                    <select id="loadFactor" class="w-full p-2 border border-slate-300 rounded-lg mt-1 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none" onchange="updateAllCalculations()">
+                                        <option value="1.0">100% - Ropa Plana (Sábanas)</option>
+                                        <option value="0.8">80% - Ropa Forma / Toallas</option>
+                                        <option value="0.5">50% - Delicados / Edredones</option>
+                                    </select>
+                                </div>
+                                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg text-center border border-blue-100">
+                                    <p class="text-xs text-blue-600 font-bold uppercase mb-1">Carga Real Recomendada</p>
+                                    <p class="text-3xl font-bold text-blue-900"><span id="realLoadDisplay">0</span> <span class="text-lg text-blue-400">kg</span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta Resumen Totales -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-t-4 border-t-purple-500">
+                            <p class="text-xs text-slate-400 font-bold uppercase text-center mb-4">TOTALES A PONER EN LA MÁQUINA</p>
+                            <div class="space-y-3 font-mono text-sm">
+                                <div class="flex justify-between items-center py-2 border-b border-dashed">
+                                    <span class="text-slate-600">Alcalino:</span> 
+                                    <span id="totalAlkaline" class="font-bold text-lg text-slate-800 bg-slate-100 px-2 rounded">0 ml</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-dashed">
+                                    <span class="text-slate-600">Detergente:</span> 
+                                    <span id="totalDetergent" class="font-bold text-lg text-slate-800 bg-slate-100 px-2 rounded">0 ml</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-dashed">
+                                    <span class="text-slate-600">Blanqueador:</span> 
+                                    <span id="totalBleach" class="font-bold text-lg text-slate-800 bg-slate-100 px-2 rounded">0 ml</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-2">
+                                    <span class="text-purple-700 font-bold">Neutralizante:</span> 
+                                    <span id="totalNeutralizer" class="font-bold text-lg text-purple-700 bg-purple-50 px-2 rounded border border-purple-100">0 ml</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna Der: Recepción y Detalles (8 columnas) -->
+                    <div class="lg:col-span-8 space-y-6">
+                        
+                        <!-- Panel Recepción -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <div class="flex justify-between items-center mb-6 border-b pb-3">
+                                <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                                    <i class="fa-solid fa-basket-shopping mr-2 text-green-600 bg-green-50 p-2 rounded"></i>
+                                    Recepción de Ropa
+                                </h2>
+                                <span class="text-xs font-bold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border">
+                                    Total: <span id="totalIncomingWeight" class="text-slate-900 text-sm">0</span> kg
+                                </span>
+                            </div>
+                            
+                            <!-- Inputs Recepción -->
+                            <div class="flex flex-col md:flex-row gap-3 mb-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <div class="flex-grow">
+                                    <label class="text-xs font-bold text-slate-400 block mb-1">Tipo de Prenda</label>
+                                    <input type="text" id="garmentType" placeholder="Ej: Sábanas cama 302" class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                </div>
+                                <div class="w-full md:w-32">
+                                    <label class="text-xs font-bold text-slate-400 block mb-1">Peso (kg)</label>
+                                    <input type="number" id="garmentWeight" placeholder="0.0" class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                </div>
+                                <div class="w-full md:w-48">
+                                    <label class="text-xs font-bold text-slate-400 block mb-1">Suciedad</label>
+                                    <select id="soilLevel" class="w-full p-2 border rounded text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <option value="ligera">Ligera (Normal)</option>
+                                        <option value="pesada">Pesada (Grasa/Tierra)</option>
+                                        <option value="biologica">☣️ Biológica (Sangre)</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-end">
+                                    <button onclick="addGarment()" class="w-full md:w-auto bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition font-bold shadow-sm shadow-green-200 active:scale-95">
+                                        <i class="fa-solid fa-plus mr-1"></i> Añadir
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Lista -->
+                            <div class="rounded-lg border border-slate-200 overflow-hidden mb-4">
+                                <table class="w-full text-sm text-left">
+                                    <thead class="bg-slate-50 text-slate-500 font-bold text-xs uppercase">
+                                        <tr>
+                                            <th class="px-4 py-3">Prenda</th>
+                                            <th class="px-4 py-3">Peso</th>
+                                            <th class="px-4 py-3">Tipo Suciedad</th>
+                                            <th class="px-4 py-3 text-right">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="garmentList" class="divide-y divide-slate-100 bg-white">
+                                        <tr>
+                                            <td colspan="4" class="px-4 py-8 text-center text-slate-400 italic">No hay prendas añadidas. La calculadora usará la capacidad de la máquina por defecto.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Alerta Protocolo Dinámica -->
+                            <div id="protocolAlert" class="hidden animate-pulse"></div>
+                        </div>
+
+                        <!-- Panel Dosis Química (Inputs) -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                                    <i class="fa-solid fa-flask mr-2 text-purple-600 bg-purple-50 p-2 rounded"></i>
+                                    Configurar Productos (ml/kg)
+                                </h2>
+                                <button onclick="switchToHelp()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold hover:underline bg-blue-50 px-3 py-1 rounded-full transition">
+                                    <i class="fa-solid fa-circle-question mr-1"></i> ¿No tienes el dato ml/kg?
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="group">
+                                    <label class="text-xs font-bold text-slate-500 mb-1 block group-hover:text-blue-600 transition">Alcalino</label>
+                                    <input type="number" id="doseAlkaline" class="w-full p-2 border border-slate-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-center font-semibold text-slate-700" placeholder="3" oninput="calcChem()">
+                                </div>
+                                <div class="group">
+                                    <label class="text-xs font-bold text-slate-500 mb-1 block group-hover:text-blue-600 transition">Detergente</label>
+                                    <input type="number" id="doseDetergent" class="w-full p-2 border border-slate-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-center font-semibold text-slate-700" placeholder="2" oninput="calcChem()">
+                                </div>
+                                <div class="group">
+                                    <label class="text-xs font-bold text-slate-500 mb-1 block group-hover:text-blue-600 transition">Blanqueador</label>
+                                    <input type="number" id="doseBleach" class="w-full p-2 border border-slate-300 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-center font-semibold text-slate-700" placeholder="5" oninput="calcChem()">
+                                </div>
+                                <div class="group">
+                                    <label class="text-xs font-bold text-purple-600 mb-1 block">Neutralizante</label>
+                                    <input type="number" id="doseNeutralizer" class="w-full p-2 border border-purple-200 bg-purple-50 rounded focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-center font-semibold text-purple-800" placeholder="1" oninput="calcChem()">
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-3 text-center italic">Ingresa la dosis recomendada por tu proveedor químico. Si no la sabes, consulta la Academia (Capítulo 7).</p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- PESTAÑA 2: ACADEMIA (MASTER CLASS) -->
+            <!-- ========================================== -->
+            <div id="learning" class="tab-content fade-in pb-12">
+                
+                <div class="max-w-4xl mx-auto">
+                    <!-- Menú Desplegable de Capítulos -->
+                    <div class="bg-white p-4 rounded-xl shadow-lg mb-6 sticky top-2 z-40 border-l-4 border-blue-600 ring-1 ring-black/5">
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">📚 Selecciona el Módulo de Estudio:</label>
+                        <div class="relative">
+                            <select id="chapterSelect" onchange="loadChapter(this.value)" class="w-full p-4 pl-12 border border-slate-200 rounded-lg text-slate-800 font-bold text-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 appearance-none cursor-pointer hover:bg-white transition shadow-inner">
+                                <option value="0">0. Introducción: ¿Lavar o Limpiar?</option>
+                                <option value="1">1. Las Fibras: Algodón vs Poliéster</option>
+                                <option value="2">2. El Paso a Paso: Manual (Alberca) vs Máquina</option>
+                                <option value="3">3. El Círculo de Sinner (Teoría Fundamental)</option>
+                                <option value="4">4. Química 1: pH y Alcalinidad</option>
+                                <option value="5">5. Química 2: Blanqueo y Neutralizado</option>
+                                <option value="6">6. Protocolos de Desmanchado (Sangre, Grasa...)</option>
+                                <option value="7">7. Errores Críticos y Cálculo de Dosis</option>
+                            </select>
+                            <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-600 text-xl pointer-events-none">
+                                <i class="fa-solid fa-book-open-reader"></i>
+                            </div>
+                            <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor del Contenido -->
+                    <div id="course-content" class="bg-white rounded-xl shadow-xl p-8 md:p-12 min-h-[600px] border border-slate-100">
+                        <!-- El contenido se inyecta aquí -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT: Lógica de la Aplicación -->
+    <script>
+        // --- NAVEGACIÓN ---
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            
+            // Actualizar botones menú
+            const btnMachine = document.getElementById('btn-machine');
+            const btnLearning = document.getElementById('btn-learning');
+            
+            if(id === 'machine') {
+                btnMachine.className = "tab-btn px-4 py-2 bg-slate-800 text-blue-300 rounded-lg text-sm flex items-center font-medium border border-slate-700 shadow-sm";
+                btnLearning.className = "tab-btn px-4 py-2 hover:bg-slate-800 rounded-lg text-sm flex items-center font-medium text-slate-300 border border-transparent";
+                updateAllCalculations(); // Recalcular al volver
+            } else {
+                btnMachine.className = "tab-btn px-4 py-2 hover:bg-slate-800 rounded-lg text-sm flex items-center font-medium text-slate-300 border border-transparent";
+                btnLearning.className = "tab-btn px-4 py-2 bg-slate-800 text-blue-300 rounded-lg text-sm flex items-center font-medium border border-slate-700 shadow-sm";
+            }
+        }
+
+        function switchToHelp() {
+            switchTab('learning');
+            const select = document.getElementById('chapterSelect');
+            select.value = "7";
+            loadChapter(7);
+        }
+
+        // --- GESTIÓN DE ROPA ---
+        let garments = [];
+
+        function addGarment() {
+            const typeInput = document.getElementById('garmentType');
+            const weightInput = document.getElementById('garmentWeight');
+            const soilInput = document.getElementById('soilLevel');
+            
+            const type = typeInput.value.trim();
+            const w = parseFloat(weightInput.value);
+            const soil = soilInput.value;
+
+            if(!type || !w || w <= 0) {
+                alert("Por favor ingrese un tipo de prenda y un peso válido.");
+                return;
+            }
+
+            garments.push({type, w, soil});
+            renderGarments();
+            
+            // Limpiar inputs
+            typeInput.value = "";
+            weightInput.value = "";
+            typeInput.focus();
+        }
+
+        function removeGarment(index) {
+            garments.splice(index, 1);
+            renderGarments();
+        }
+
+        function renderGarments() {
+            const list = document.getElementById('garmentList');
+            list.innerHTML = "";
+            
+            let totalWeight = 0;
+            let hasBio = false;
+            let hasHeavy = false;
+
+            if (garments.length === 0) {
+                list.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400 italic">No hay prendas añadidas. La calculadora usará la capacidad de la máquina por defecto.</td></tr>';
+            } else {
+                garments.forEach((g, i) => {
+                    totalWeight += g.w;
+                    
+                    let badgeClass = "bg-slate-100 text-slate-600";
+                    let icon = "";
+                    
+                    if(g.soil === 'biologica') {
+                        hasBio = true;
+                        badgeClass = "bg-red-100 text-red-700 font-bold border border-red-200";
+                        icon = "☣️ ";
+                    } else if (g.soil === 'pesada') {
+                        hasHeavy = true;
+                        badgeClass = "bg-orange-100 text-orange-700 font-bold border border-orange-200";
+                        icon = "🔧 ";
+                    } else {
+                        badgeClass = "bg-green-50 text-green-700 border border-green-100";
+                    }
+
+                    list.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="px-4 py-3 font-medium text-slate-700">${g.type}</td>
+                            <td class="px-4 py-3 text-slate-600">${g.w} kg</td>
+                            <td class="px-4 py-3">
+                                <span class="text-xs px-2 py-1 rounded-full ${badgeClass}">
+                                    ${icon}${g.soil.toUpperCase()}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <button onclick="removeGarment(${i})" class="text-slate-400 hover:text-red-500 transition px-2">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Actualizar total visual
+            document.getElementById('totalIncomingWeight').innerText = totalWeight.toFixed(1);
+
+            // Alerta de Protocolo
+            const alertBox = document.getElementById('protocolAlert');
+            if(hasBio) {
+                alertBox.className = "block bg-red-50 border-l-4 border-red-500 text-red-900 p-4 rounded-r mt-4 shadow-sm animate-pulse";
+                alertBox.innerHTML = `
+                    <div class="flex items-start">
+                        <i class="fa-solid fa-triangle-exclamation text-xl mr-3 mt-1"></i>
+                        <div>
+                            <strong class="block font-bold">⚠️ ALERTA DE RIESGO BIOLÓGICO DETECTADA</strong>
+                            <ul class="list-disc list-inside text-sm mt-1 space-y-1">
+                                <li><strong>EPP:</strong> Use guantes gruesos y mascarilla.</li>
+                                <li><strong>Prohibido:</strong> NO use agua caliente al inicio (Fija la sangre).</li>
+                                <li><strong>Protocolo:</strong> Prelavado AGUA FRÍA + Lavado Térmico >70°C.</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            } else if (hasHeavy) {
+                alertBox.className = "block bg-orange-50 border-l-4 border-orange-500 text-orange-900 p-4 rounded-r mt-4 shadow-sm";
+                alertBox.innerHTML = `
+                    <div class="flex items-start">
+                        <i class="fa-solid fa-oil-can text-xl mr-3 mt-1"></i>
+                        <div>
+                            <strong class="block font-bold">SUCIEDAD PESADA / GRASA</strong>
+                            <p class="text-sm mt-1">Se requiere temperatura alta (>65°C) y dosis extra de detergente alcalino para emulsionar la grasa.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                alertBox.className = "hidden";
+            }
+
+            // Actualizar cálculos globales
+            updateAllCalculations();
+        }
+
+        // --- CÁLCULOS ---
+        function updateAllCalculations() {
+            // 1. Capacidad Máquina
+            const cap = parseFloat(document.getElementById('machineCapacity').value) || 0;
+            const factor = parseFloat(document.getElementById('loadFactor').value) || 1;
+            const realLoad = (cap * factor).toFixed(1);
+            
+            document.getElementById('realLoadDisplay').innerText = realLoad;
+
+            // 2. Determinar base de cálculo (Lista o Capacidad Máquina)
+            const listWeight = parseFloat(document.getElementById('totalIncomingWeight').innerText) || 0;
+            const calculationBase = listWeight > 0 ? listWeight : realLoad;
+            
+            // 3. Química
+            calcChem(calculationBase);
+        }
+
+        function calcChem(baseWeight = null) {
+            // Si llamamos directamente desde el input, buscamos el peso base
+            if(baseWeight === null || typeof baseWeight !== 'number') {
+                const listW = parseFloat(document.getElementById('totalIncomingWeight').innerText) || 0;
+                const machW = parseFloat(document.getElementById('realLoadDisplay').innerText) || 0;
+                baseWeight = listW > 0 ? listW : machW;
+            }
+
+            const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
+            
+            document.getElementById('totalAlkaline').innerText = Math.round(getVal('doseAlkaline') * baseWeight) + ' ml';
+            document.getElementById('totalDetergent').innerText = Math.round(getVal('doseDetergent') * baseWeight) + ' ml';
+            document.getElementById('totalBleach').innerText = Math.round(getVal('doseBleach') * baseWeight) + ' ml';
+            document.getElementById('totalNeutralizer').innerText = Math.round(getVal('doseNeutralizer') * baseWeight) + ' ml';
+        }
+
+        // --- CONTENIDO ACADEMIA ---
+        const courseData = [
+            {
+                title: "0. Introducción: ¿Lavar o Limpiar?",
+                content: `
+                    <p class="text-lg text-slate-600 mb-6 leading-relaxed">Lavar ropa en casa es intuición y "ojímetro". Lavar ropa industrialmente es <strong>Ciencia Pura</strong>. En este curso aprenderás a controlar las variables químicas y físicas para garantizar higiene, blancura y rentabilidad.</p>
+                    
+                    <div class="concept-card">
+                        <div class="concept-title"><div class="concept-icon"><i class="fa-solid fa-water"></i></div>El Agua: Tu Materia Prima</div>
+                        <p class="text-slate-600">El agua no es solo H2O. El agua tiene "personalidad" y se llama <strong>Dureza</strong>.</p>
+                        <ul class="list-disc list-inside mt-3 text-sm text-slate-600 space-y-2">
+                            <li><strong>Agua Dura:</strong> Tiene mucho Calcio y Magnesio. Estos minerales "matan" el jabón. Si tu agua es dura, gastarás el doble de detergente para obtener la misma espuma.</li>
+                            <li><strong>Agua Blanda:</strong> Ideal para lavar. El detergente rinde al 100%.</li>
+                        </ul>
+                        <div class="highlight-box">
+                            💡 <strong>Tip Pro:</strong> Si la ropa sale grisácea, áspera (como lija) y las toallas no secan bien, probablemente tienes problemas de dureza del agua o falta de neutralizante.
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "1. Identificación de Fibras",
+                content: `
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Conoce a tu enemigo (o amigo)</h3>
+                    <p class="mb-6 text-slate-600">No puedes tratar igual a una sábana de algodón que a un mantel de poliéster. Son opuestos químicos.</p>
+
+                    <table class="tech-table">
+                        <thead>
+                            <tr>
+                                <th>Característica</th>
+                                <th>Algodón (Natural) 🌿</th>
+                                <th>Poliéster (Sintético) 🧪</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-bold text-slate-700">Comportamiento con Agua</td>
+                                <td>La ama (Hidrofílico). Absorbe mucho agua.</td>
+                                <td>La odia (Hidrofóbico). Se seca muy rápido.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-700">Comportamiento con Grasa</td>
+                                <td>Fácil de quitar.</td>
+                                <td><strong>Imán de grasa</strong> (Oleofílico). La absorbe y no la suelta.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-bold text-slate-700">Resistencia Térmica</td>
+                                <td>Resiste altas temperaturas (90°C).</td>
+                                <td>Sensible al <strong>Choque Térmico</strong>. Se arruga permanentemente si se enfría rápido.</td>
+                            </tr>
+                             <tr>
+                                <td class="font-bold text-slate-700">Química</td>
+                                <td>Resiste Cloro (si es blanco).</td>
+                                <td>El Cloro puede amarillearlo con el tiempo.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="danger-box">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i> <strong>El Fenómeno de la Redeposición:</strong><br>
+                        El poliéster tiene carga eléctrica estática. Si el agua de lavado está sucia y no hay suficiente detergente, la mugre que soltó vuelve a pegarse al poliéster como un imán, dejándolo gris para siempre.
+                    </div>
+                `
+            },
+            {
+                title: "2. Paso a Paso: Alberca vs Máquina",
+                content: `
+                    <p class="text-lg text-slate-600 mb-6">Existen dos formas de iniciar el proceso: en la <strong>Alberca (Manual)</strong> o directo en la <strong>Máquina (Automático)</strong>. Elegir mal puede costarte dinero o fijar manchas.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- MÉTODO 1: ALBERCA -->
+                        <div class="concept-card !mb-0 border-l-4 border-l-blue-500 bg-blue-50/50">
+                            <div class="concept-title text-blue-800"><i class="fa-solid fa-hand-holding-droplet mr-2"></i> MÉTODO 1: Lavado en Alberca</div>
+                            <p class="text-sm mb-4 text-slate-600">Ideal para: Ropa extremadamente sucia (barro, grasa mecánica), traperos, o remojo largo.</p>
+                            
+                            <div class="step-box">
+                                <div class="step-number">1</div>
+                                <strong>Llenado y Química</strong><br>
+                                Disuelve el detergente alcalino ANTES de meter la ropa. <br><span class="text-red-600 font-bold text-xs">¡Si hay sangre usa AGUA FRÍA!</span>
+                            </div>
+                            <div class="step-box">
+                                <div class="step-number">2</div>
+                                <strong>Inmersión (Remojo)</strong><br>
+                                Grasa: 2 horas agua caliente.<br>Sangre: 1 hora agua fría.
+                            </div>
+                            <div class="step-box">
+                                <div class="step-number">3</div>
+                                <strong>Frotado Manual</strong><br>
+                                Usa cepillo en zonas difíciles. La máquina no ve manchas, tú sí.
+                            </div>
+                        </div>
+
+                        <!-- MÉTODO 2: MÁQUINA -->
+                        <div class="concept-card !mb-0 border-l-4 border-l-green-500 bg-green-50/50">
+                            <div class="concept-title text-green-800"><i class="fa-solid fa-robot mr-2"></i> MÉTODO 2: Directo en Máquina</div>
+                            <p class="text-sm mb-4 text-slate-600">Ideal para: Sábanas de hotel, Riesgo Biológico (seguridad) y Rapidez.</p>
+                            
+                            <div class="step-box">
+                                <div class="step-number">1</div>
+                                <strong>Carga Correcta</strong><br>
+                                Deja un puño de aire arriba. Si llenas a tope, la ropa no cae y no se lava.
+                            </div>
+                            <div class="step-box">
+                                <div class="step-number">2</div>
+                                <strong>El "Flush" (Prelavado)</strong><br>
+                                3 min con agua fría y nivel ALTO. Solo para sacar polvo y orina.
+                            </div>
+                            <div class="step-box">
+                                <div class="step-number">3</div>
+                                <strong>Lavado Principal</strong><br>
+                                Nivel BAJO (para que la ropa golpee al caer), agua caliente y todos los químicos.
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "3. El Círculo de Sinner (Teoría Vital)",
+                content: `
+                    <div class="flex items-center mb-8 bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                        <div class="text-5xl text-blue-600 mr-6"><i class="fa-solid fa-chart-pie"></i></div>
+                        <div>
+                            <h3 class="font-bold text-xl mb-1 text-slate-800">La Fórmula de la Limpieza</h3>
+                            <p class="text-slate-600">Herbert Sinner descubrió que para limpiar CUALQUIER COSA se necesitan 4 factores. Si quitas uno, tienes que aumentar los otros.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="concept-card !mb-0 border-t-4 border-t-blue-500">
+                            <h4 class="font-bold text-blue-800 text-lg mb-2"><i class="fa-solid fa-flask mr-2"></i> 1. Química</h4>
+                            <p class="text-sm text-slate-600">El detergente. Es el agente que rompe los enlaces de la suciedad.</p>
+                        </div>
+                        <div class="concept-card !mb-0 border-t-4 border-t-red-500">
+                            <h4 class="font-bold text-red-800 text-lg mb-2"><i class="fa-solid fa-temperature-full mr-2"></i> 2. Temperatura</h4>
+                            <p class="text-sm text-slate-600">El calor acelera las reacciones y derrite las grasas sólidas.</p>
+                        </div>
+                        <div class="concept-card !mb-0 border-t-4 border-t-green-500">
+                            <h4 class="font-bold text-green-800 text-lg mb-2"><i class="fa-solid fa-arrows-rotate mr-2"></i> 3. Mecánica</h4>
+                            <p class="text-sm text-slate-600">El movimiento. El golpe de la ropa al caer dentro del tambor.</p>
+                        </div>
+                        <div class="concept-card !mb-0 border-t-4 border-t-yellow-500">
+                            <h4 class="font-bold text-yellow-800 text-lg mb-2"><i class="fa-solid fa-clock mr-2"></i> 4. Tiempo</h4>
+                            <p class="text-sm text-slate-600">La química no es mágica, necesita minutos para actuar.</p>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box mt-6">
+                        <strong>Ejemplo Práctico de Sinner:</strong><br>
+                        Si lavas con <strong>Agua Fría</strong> (reduces Temperatura), obligatoriamente debes aumentar la <strong>Química</strong> (usar más jabón) o aumentar el <strong>Tiempo</strong> de lavado. Si no compensas, la ropa queda sucia.
+                    </div>
+                `
+            },
+            {
+                title: "4. Química 1: El pH y la Alcalinidad",
+                content: `
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">La Guerra del pH</h3>
+                    <p class="mb-4 text-slate-600">El lavado es un viaje. Subimos el pH para atacar la suciedad, y debemos bajarlo para cuidar la piel.</p>
+                    
+                    <div class="bg-slate-800 p-4 rounded-xl text-white mb-6">
+                        <div class="ph-gradient"></div>
+                        <div class="flex justify-between text-xs font-bold mt-2">
+                            <span class="text-red-400">0 (ÁCIDO)</span>
+                            <span class="text-yellow-400">7 (NEUTRO)</span>
+                            <span class="text-blue-400">14 (ALCALINO)</span>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1 opacity-70">
+                            <span>Neutralizante</span>
+                            <span>Agua Pura</span>
+                            <span>Cloro / Desengrasante</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="concept-card border-l-4 border-l-blue-600">
+                            <div class="concept-title text-blue-800">Detergente Alcalino (pH 10-12)</div>
+                            <p class="text-slate-700"><strong>¿Qué hace?</strong> "Hincha" la fibra de algodón para abrirla (como abrir una piña) y que suelte la suciedad. Además, convierte las grasas en jabón (Saponificación).</p>
+                            <p class="text-sm mt-2 text-slate-500 italic">Es el "martillo" del lavado. Necesario, pero agresivo.</p>
+                        </div>
+                        <div class="concept-card border-l-4 border-l-indigo-600">
+                            <div class="concept-title text-indigo-800">Tensoactivos (El Jabón)</div>
+                            <p class="text-slate-700"><strong>¿Qué hace?</strong> El agua tiene "tensión superficial" (por eso forma gotas). El tensoactivo rompe esa tensión para que el agua moje de verdad y penetre el tejido.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "5. Química 2: Blanqueo y Neutralizado",
+                content: `
+                    <h3 class="text-xl font-bold text-slate-800 mb-6">El Acabado Final</h3>
+                    
+                    <h4 class="font-bold text-slate-700 mb-2 border-b pb-2">1. Oxidantes (Blanqueadores)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-white p-4 rounded border shadow-sm">
+                            <h5 class="font-bold text-blue-600">Cloro (Hipoclorito)</h5>
+                            <ul class="text-sm text-slate-600 mt-2 list-disc list-inside">
+                                <li>Solo algodón blanco.</li>
+                                <li>Funciona en frío.</li>
+                                <li>Daña la tela rápido.</li>
+                                <li><span class="text-red-500 font-bold">¡Peligro con Clorhexidina!</span></li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-4 rounded border shadow-sm">
+                            <h5 class="font-bold text-green-600">Oxígeno (Peróxido)</h5>
+                            <ul class="text-sm text-slate-600 mt-2 list-disc list-inside">
+                                <li>Seguro para color.</li>
+                                <li>Requiere calor (>60°C).</li>
+                                <li>Más suave con la fibra.</li>
+                                <li>Ecológico.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="concept-card border-l-4 border-l-purple-500 bg-purple-50/30">
+                        <div class="concept-title text-purple-800">El Neutralizante (Sour)</div>
+                        <p class="text-slate-700">Después de lavar con Alcalinos (pH 11) y Cloro, la ropa queda irritante.</p>
+                        <p class="mt-2 font-bold text-purple-900">¿Por qué es obligatorio?</p>
+                        <ul class="list-disc list-inside mt-2 text-sm text-slate-700 space-y-1">
+                            <li>Baja el pH a 5.5 (igual que la piel humana) para evitar alergias.</li>
+                            <li>Evita que la ropa se ponga <strong>amarilla</strong> al plancharla.</li>
+                            <li>Elimina el color grisáceo causado por el agua dura.</li>
+                        </ul>
+                    </div>
+                `
+            },
+            {
+                title: "6. Protocolos de Desmanchado",
+                content: `
+                    <div class="space-y-4">
+                        <!-- Sangre -->
+                        <details class="bg-white border border-red-100 rounded-lg p-4 group open:shadow-md transition">
+                            <summary class="font-bold text-red-700 cursor-pointer flex justify-between items-center text-lg">
+                                <span>🩸 Sangre y Proteínas (Biológico)</span>
+                                <i class="fa-solid fa-chevron-down transition group-open:rotate-180 text-red-300"></i>
+                            </summary>
+                            <div class="pt-4 text-sm text-slate-700">
+                                <p class="mb-2"><strong>Regla de Oro:</strong> <span class="bg-red-100 text-red-800 px-2 py-1 rounded font-bold">AGUA FRÍA PRIMERO</span></p>
+                                <p>El calor coagula la proteína (como freír un huevo). Si metes agua caliente al inicio, la mancha se "cocina" y no sale nunca.</p>
+                                <div class="step-box">
+                                    <strong class="text-green-700">Receta:</strong><br>
+                                    1. Prelavado 5 min Agua FRÍA.<br>
+                                    2. Lavado Alcalino 75°C.<br>
+                                    3. Peróxido de Hidrógeno.
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- Grasa -->
+                        <details class="bg-white border border-orange-100 rounded-lg p-4 group open:shadow-md transition">
+                            <summary class="font-bold text-orange-700 cursor-pointer flex justify-between items-center text-lg">
+                                <span>🔧 Grasa Mecánica / Aceites</span>
+                                <i class="fa-solid fa-chevron-down transition group-open:rotate-180 text-orange-300"></i>
+                            </summary>
+                            <div class="pt-4 text-sm text-slate-700">
+                                <p>La grasa es sólida a temperatura ambiente. El agua fría rebota.</p>
+                                <div class="step-box">
+                                    <strong class="text-green-700">Receta:</strong><br>
+                                    1. Aplicar desengrasante puro sobre la mancha en seco (15 min antes).<br>
+                                    2. Lavar a ALTA TEMPERATURA (>70°C) para derretirla.<br>
+                                    3. Dosis doble de Alcalino para que no se vuelva a pegar.
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- Clorhexidina -->
+                        <details class="bg-white border border-pink-100 rounded-lg p-4 group open:shadow-md transition">
+                            <summary class="font-bold text-pink-700 cursor-pointer flex justify-between items-center text-lg">
+                                <span>🧴 Clorhexidina (El Desastre Hospitalario)</span>
+                                <i class="fa-solid fa-chevron-down transition group-open:rotate-180 text-pink-300"></i>
+                            </summary>
+                            <div class="pt-4 text-sm text-slate-700">
+                                <p>Es el desinfectante de manos rosado de los hospitales. Es invisible en la ropa seca.</p>
+                                <p class="mt-2 font-bold text-red-600 bg-red-50 p-2 rounded border border-red-100 text-center">Reacción Química: Clorhexidina + Cloro (Lejía) = Mancha Marrón Indeleble.</p>
+                                <p class="mt-2"><strong>Prevención:</strong> En ropa de quirófano, NUNCA usar Cloro. Usar solamente Peróxido.</p>
+                            </div>
+                        </details>
+                        
+                         <!-- Oxido -->
+                        <details class="bg-white border border-amber-100 rounded-lg p-4 group open:shadow-md transition">
+                            <summary class="font-bold text-amber-700 cursor-pointer flex justify-between items-center text-lg">
+                                <span>⛓️ Óxido (Metal)</span>
+                                <i class="fa-solid fa-chevron-down transition group-open:rotate-180 text-amber-300"></i>
+                            </summary>
+                            <div class="pt-4 text-sm text-slate-700">
+                                <p>El jabón no le hace nada al metal. El cloro lo oxida más.</p>
+                                <div class="step-box">
+                                    <strong class="text-green-700">Receta:</strong><br>
+                                    Necesitas un ácido específico (Ácido Oxálico o Fluorhídrico). Aplicar con guantes solo en la mancha y enjuagar rápido.
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                `
+            },
+            {
+                title: "7. Errores Críticos y Cálculo de Dosis",
+                content: `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Error Choque Térmico -->
+                        <div class="danger-box !m-0 !rounded-lg shadow-sm">
+                            <h4 class="font-bold mb-2 flex items-center"><i class="fa-solid fa-temperature-arrow-down mr-2"></i> 1. El Choque Térmico</h4>
+                            <p class="text-sm"><strong>El Error:</strong> Lavar poliéster a 70°C y vaciar el agua para meter agua fría de golpe.</p>
+                            <p class="text-sm mt-2"><strong>Resultado:</strong> El poliéster caliente es plástico blando. Al enfriarlo de golpe, se "congela" arrugado. Esas arrugas no salen ni con plancha industrial.</p>
+                            <p class="text-sm mt-2 text-green-700 font-bold">✅ Solución: "Cool Down". Enfriar poco a poco.</p>
+                        </div>
+
+                        <!-- Error Combustión -->
+                        <div class="danger-box !m-0 !rounded-lg border-l-orange-500 bg-orange-50 text-orange-900 shadow-sm">
+                            <h4 class="font-bold mb-2 flex items-center"><i class="fa-solid fa-fire mr-2"></i> 2. Combustión Espontánea</h4>
+                            <p class="text-sm"><strong>El Error:</strong> Secar toallas con restos de aceite (spa/cocina) y dejarlas en un carrito calientes sin enfriar.</p>
+                            <p class="text-sm mt-2"><strong>Resultado:</strong> El aceite oxidado caliente genera su propio calor y prende fuego solo, horas después.</p>
+                            <p class="text-sm mt-2 text-green-700 font-bold">✅ Solución: Ciclo "Cool Down" obligatorio en secadora.</p>
+                        </div>
+                        
+                        <!-- Calculadora Mental -->
+                         <div class="concept-card !m-0 col-span-1 md:col-span-2 !bg-blue-600 !text-white !border-none shadow-lg">
+                            <h4 class="font-bold text-xl mb-4 text-center"><i class="fa-solid fa-calculator mr-2"></i> Maestro de la Dosificación</h4>
+                            
+                            <div class="bg-white/10 p-4 rounded-lg backdrop-blur-sm mb-4 border border-white/20">
+                                <p class="text-sm mb-2 font-bold text-blue-100 text-center uppercase">La Fórmula de Conversión</p>
+                                <p class="text-center text-lg italic">"¿Mi detergente dice 'Use 100ml para 10kg', qué pongo en la App?"</p>
+                                <div class="bg-white text-blue-900 p-3 rounded font-mono text-center font-bold text-lg mt-3 shadow-lg transform scale-105">
+                                    100 ml ÷ 10 kg = <span class="text-2xl">10</span> ml/kg
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-sm">
+                                <div class="bg-blue-800/50 p-3 rounded">
+                                    <i class="fa-solid fa-bottle-water text-2xl mb-1 block opacity-50"></i>
+                                    1 Tapa Detergente<br><strong>~ 50 ml</strong>
+                                </div>
+                                <div class="bg-blue-800/50 p-3 rounded">
+                                    <i class="fa-solid fa-mug-hot text-2xl mb-1 block opacity-50"></i>
+                                    1 Taza Cocina<br><strong>~ 240 ml</strong>
+                                </div>
+                                <div class="bg-blue-800/50 p-3 rounded">
+                                    <i class="fa-solid fa-cube text-2xl mb-1 block opacity-50"></i>
+                                    Vaso Desechable<br><strong>~ 200 ml</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        function loadChapter(index) {
+            const contentDiv = document.getElementById('course-content');
+            const data = courseData[index];
+            const select = document.getElementById('chapterSelect');
+            
+            // Sincronizar select si se llama desde botón externo
+            select.value = index;
+
+            // Renderizar contenido con animación
+            contentDiv.innerHTML = `
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <span class="text-xs font-bold text-blue-600 uppercase tracking-widest">Módulo ${index}</span>
+                    <h2 class="text-3xl font-bold text-slate-800 mt-1">${data.title}</h2>
+                </div>
+                <div class="fade-in text-slate-700 leading-relaxed text-lg">
+                    ${data.content}
+                </div>
+            `;
+            
+            // Scroll suave hacia arriba en móviles
+            if(window.innerWidth < 768) {
+                document.getElementById('learning').scrollIntoView({behavior: 'smooth'});
+            }
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadChapter(0);
+            updateAllCalculations();
+        });
+
+    </script>
+</body>
+</html>
